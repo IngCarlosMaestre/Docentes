@@ -27,30 +27,19 @@ def buscar_docente():
     query = request.args.get('q', '').lower()
     conn = conectar()
     cursor = conn.cursor(dictionary=True)
-
+    
     if query:
         cursor.execute("""
-            SELECT D.*, 
-                (SELECT ROUND(AVG(R.valor_calificacion), 1)
-                 FROM Resenas R
-                 WHERE R.id_docente = D.id_docente) AS promedio
-            FROM Docentes D
-            WHERE LOWER(D.nombre) LIKE %s OR LOWER(D.materias) LIKE %s
+            SELECT * FROM Docentes 
+            WHERE LOWER(nombre) LIKE %s OR LOWER(materias) LIKE %s
         """, ('%' + query + '%', '%' + query + '%'))
     else:
-        cursor.execute("""
-            SELECT D.*, 
-                (SELECT ROUND(AVG(R.valor_calificacion), 1)
-                 FROM Resenas R
-                 WHERE R.id_docente = D.id_docente) AS promedio
-            FROM Docentes D
-        """)
+        cursor.execute("SELECT * FROM Docentes")
     
     docentes = cursor.fetchall()
     conn.close()
 
     return jsonify(docentes)
-
 
 import traceback
 
