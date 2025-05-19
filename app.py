@@ -204,10 +204,5 @@ def comentar_resena(id_resena):
 
 # ------------------ MAIN ------------------
 
-if __name__ == "__main__":
-    try:
-        conn = conectar()
-        print("✅ Conexión exitosa a Railway MySQL")
-        conn.close()
-    except Exception as e:
-        print("❌ Error al conectar:", e)
+if __name__ == '__main__':
+    app.run(debug=True)
