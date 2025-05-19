@@ -126,15 +126,15 @@
       let htmlEstrellas = "";
   
       for (let i = 0; i < estrellasLlenas; i++) {
-        htmlEstrellas += "★"; // estrella llena
+        htmlEstrellas += "★";
       }
   
       if (tieneMedia) {
-        htmlEstrellas += "☆"; // media estrella
+        htmlEstrellas += "☆";
       }
   
       for (let i = 0; i < estrellasVacias; i++) {
-        htmlEstrellas += "✩"; // estrella vacía
+        htmlEstrellas += "✩";
       }
   
       return `<span style="color: gold; font-size: 1.2rem;">${htmlEstrellas}</span>`;
@@ -145,7 +145,7 @@
         .then(response => response.json())
         .then(data => {
           const lista = document.getElementById('listaDocentes');
-          lista.innerHTML = ''; // Limpiar lista antes de actualizar
+          lista.innerHTML = '';
   
           if (data.length === 0) {
             lista.innerHTML = '<p>No se encontraron docentes.</p>';
@@ -155,48 +155,42 @@
               div.className = 'docente';
   
               const promedio = doc.promedio !== null ? parseFloat(doc.promedio) : 'Sin calificaciones';
-          const estrellasHTML = generarEstrellas(promedio);
-
+              const estrellasHTML = generarEstrellas(promedio);
   
               const enlace = document.createElement('a');
               enlace.href = `${window.location.origin}/docentes/${doc.id_docente}`;
-
-
-enlace.style.textDecoration = 'none'; // Opcional: quitar subrayado
-enlace.style.color = 'inherit';       // Opcional: heredar colores
-
-// Crea un contenedor dentro del enlace para que sea clickeable todo
-const contenido = document.createElement('div');
-contenido.innerHTML = `
-  <span style="color: black; font-weight: bold; font-size: 1.3rem;">
-    <em style="color: #2563eb;">Docente:</em> ${doc.nombre}
-  </span><br>
-  <em style="color: #2563eb;">Semestres:</em> ${doc.semestres}<br>
-  <em style="color: #2563eb;">Materias:</em> ${doc.materias}<br>
-  <em style="color: #2563eb;">Promedio de Calificación:</em> ${promedio}<br>
-  ${estrellasHTML}
-`;
-
-enlace.appendChild(contenido);
-div.appendChild(enlace);
-lista.appendChild(div);
-
+              enlace.style.textDecoration = 'none';
+              enlace.style.color = 'inherit';
+  
+              const contenido = document.createElement('div');
+              contenido.innerHTML = `
+                <span style="color: black; font-weight: bold; font-size: 1.3rem;">
+                  <em style="color: #2563eb;">Docente:</em> ${doc.nombre}
+                </span><br>
+                <em style="color: #2563eb;">Semestres:</em> ${doc.semestres}<br>
+                <em style="color: #2563eb;">Materias:</em> ${doc.materias}<br>
+                <em style="color: #2563eb;">Promedio de Calificación:</em> ${promedio}<br>
+                ${estrellasHTML}
+              `;
+  
+              enlace.appendChild(contenido);
+              div.appendChild(enlace);
+              lista.appendChild(div);
             });
           }
         });
     }
   
-    // Mostrar todos los docentes al cargar la página
     window.addEventListener('DOMContentLoaded', () => {
       cargarDocentes();
     });
   
-    // Filtrar docentes según el texto ingresado
     document.getElementById('busqueda').addEventListener('input', function () {
       const query = this.value;
       cargarDocentes(query);
     });
   </script>
+  
   
 
 </body>
