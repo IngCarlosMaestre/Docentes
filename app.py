@@ -138,26 +138,36 @@ def comentar_resena(id_resena):
     if not comentario or len(comentario.strip()) < 3:
         return "Comentario no válido", 400
 
-    conn = conectar()
-    cursor = conn.cursor()
+    try:
+        conn = conectar()
+        cursor = conn.cursor()
 
-    # Obtener el id_docente antes de insertar
-    cursor.execute("SELECT id_docente FROM Resenas WHERE id_resena = %s", (id_resena,))
-    resultado = cursor.fetchone()
-    if not resultado:
+        # Validar que la reseña existe
+        cursor.execute("SELECT id_docente FROM Resenas WHERE id_resena = %s", (id_resena,))
+        resultado = cursor.fetchone()
+        if not resultado:
+            conn.close()
+            return "Reseña no encontrada", 404
+
+        id_docente = resultado[0]
+
+        # Insertar el comentario
+        cursor.execute("""
+            INSERT INTO Comentarios (id_resena, comentario, fecha)
+            VALUES (%s, %s, NOW())
+        """, (id_resena, comentario))
+
+        conn.commit()
+
+    except Exception as e:
+        conn.rollback()
+        return f"Error al insertar el comentario: {e}", 500
+
+    finally:
         conn.close()
-        return "Reseña no encontrada", 404
-    id_docente = resultado[0]
-
-    cursor.execute("""
-        INSERT INTO Comentarios (id_resena, comentario, fecha)
-        VALUES (%s, %s, NOW())
-    """, (id_resena, comentario))
-
-    conn.commit()
-    conn.close()
 
     return redirect(url_for('detalle_docente', id_docente=id_docente))
+
 
 # ------------------ MAIN ------------------
 
