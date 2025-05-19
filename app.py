@@ -108,7 +108,7 @@ def formularios():
             id_docente = int(id_docente)
 
             cursor.execute("""
-                INSERT INTO Resenas (id_docente, resena, fecha, valor_calificacion)
+                INSERT INTO resenas (id_docente, resena, fecha, valor_calificacion)
                 VALUES (%s, %s, %s, %s)
             """, (id_docente, resena, datetime.now(), calificacion))
             conn.commit()
