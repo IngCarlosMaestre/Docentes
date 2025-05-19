@@ -90,34 +90,23 @@ def formularios():
 
 @app.route('/buscar_docente')
 def buscar_docente():
-    q = request.args.get('q', '').strip()
+    query = request.args.get('q', '').lower()
     conn = conectar()
     cursor = conn.cursor(dictionary=True)
-
-    if q:
-        query = """
-            SELECT d.*, 
-                   ROUND(AVG(r.valor_calificacion), 1) AS promedio
-            FROM Docentes d
-            LEFT JOIN Resenas r ON d.id_docente = r.id_docente
-            WHERE d.nombre LIKE %s OR d.materias LIKE %s
-            GROUP BY d.id_docente
-        """
-        like_q = f"%{q}%"
-        cursor.execute(query, (like_q, like_q))
+    
+    if query:
+        cursor.execute("""
+            SELECT * FROM Docentes 
+            WHERE LOWER(nombre) LIKE %s OR LOWER(materias) LIKE %s
+        """, ('%' + query + '%', '%' + query + '%'))
     else:
-        query = """
-            SELECT d.*, 
-                   ROUND(AVG(r.valor_calificacion), 1) AS promedio
-            FROM Docentes d
-            LEFT JOIN Resenas r ON d.id_docente = r.id_docente
-            GROUP BY d.id_docente
-        """
-        cursor.execute(query)
-
-    resultados = cursor.fetchall()
+        cursor.execute("SELECT * FROM Docentes")
+    
+    docentes = cursor.fetchall()
     conn.close()
-    return jsonify(resultados)
+
+    # Puedes adaptar el formato de datos si lo necesitas
+    return jsonify(docentes)
 
 
 
