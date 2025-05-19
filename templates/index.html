@@ -155,7 +155,8 @@
               div.className = 'docente';
   
               const promedio = doc.promedio !== null ? parseFloat(doc.promedio) : 'Sin calificaciones';
-              const estrellasHTML = generarEstrellas(promedio);
+          const estrellasHTML = generarEstrellas(promedio);
+
   
               const enlace = document.createElement('a');
               enlace.href = `${window.location.origin}/docentes/${doc.id_docente}`;
