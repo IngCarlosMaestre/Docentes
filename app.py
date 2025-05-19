@@ -41,43 +41,53 @@ def buscar_docente():
 
     return jsonify(docentes)
 
+import traceback
+
 @app.route('/docentes/<int:id_docente>')
 def detalle_docente(id_docente):
-    conn = conectar()
-    cursor = conn.cursor(dictionary=True)
+    try:
+        conn = conectar()
+        cursor = conn.cursor(dictionary=True)
 
-    # Info docente
-    cursor.execute("SELECT * FROM Docentes WHERE id_docente = %s", (id_docente,))
-    docente = cursor.fetchone()
-    if not docente:
-        return "Docente no encontrado", 404
+        cursor.execute("SELECT * FROM Docentes WHERE id_docente = %s", (id_docente,))
+        docente = cursor.fetchone()
+        if not docente:
+            return "Docente no encontrado", 404
 
-    # Reseñas
-    cursor.execute("""
-        SELECT id_resena, resena, fecha, valor_calificacion
-        FROM Resenas
-        WHERE id_docente = %s
-        ORDER BY fecha DESC
-    """, (id_docente,))
-    resenas = cursor.fetchall()
-
-    # Comentarios por reseña
-    for r in resenas:
         cursor.execute("""
-            SELECT id_comentario, comentario, fecha
-            FROM Comentarios
-            WHERE id_resena = %s
-            ORDER BY fecha ASC
-        """, (r['id_resena'],))
-        r['comentarios'] = cursor.fetchall()
+            SELECT id_resena, resena, fecha, valor_calificacion
+            FROM Resenas
+            WHERE id_docente = %s
+            ORDER BY fecha DESC
+        """, (id_docente,))
+        resenas = cursor.fetchall()
 
-    # Calcular promedio
-    calificaciones = [float(r['valor_calificacion']) for r in resenas if r['valor_calificacion']]
-    promedio = round(sum(calificaciones) / len(calificaciones), 1) if calificaciones else None
+        for r in resenas:
+            cursor.execute("""
+                SELECT id_comentario, comentario, fecha
+                FROM Comentarios
+                WHERE id_resena = %s
+                ORDER BY fecha ASC
+            """, (r['id_resena'],))
+            r['comentarios'] = cursor.fetchall()
 
-    conn.close()
+        calificaciones = []
+        for r in resenas:
+            try:
+                calificaciones.append(float(r['valor_calificacion']))
+            except (ValueError, TypeError):
+                pass
 
-    return render_template('docente.html', docente=docente, promedio=promedio, resenas=resenas)
+        promedio = round(sum(calificaciones) / len(calificaciones), 1) if calificaciones else None
+
+        conn.close()
+
+        return render_template('docente.html', docente=docente, promedio=promedio, resenas=resenas)
+
+    except Exception as e:
+        traceback.print_exc()
+        return f"Error del servidor: {str(e)}", 500
+
 
 @app.route('/formularios', methods=['GET', 'POST'])
 def formularios():
