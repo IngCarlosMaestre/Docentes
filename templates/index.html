@@ -115,32 +115,6 @@
   </div>
 
   <script>
-    function generarEstrellas(promedio) {
-      if (promedio === 'Sin calificaciones') {
-        return '<span style="color: gray;">Sin calificaciones</span>';
-      }
-  
-      const estrellasLlenas = Math.floor(promedio);
-      const tieneMedia = promedio % 1 >= 0.5;
-      const estrellasVacias = 5 - estrellasLlenas - (tieneMedia ? 1 : 0);
-  
-      let htmlEstrellas = "";
-  
-      for (let i = 0; i < estrellasLlenas; i++) {
-        htmlEstrellas += "★"; // estrella llena
-      }
-  
-      if (tieneMedia) {
-        htmlEstrellas += "☆"; // media estrella
-      }
-  
-      for (let i = 0; i < estrellasVacias; i++) {
-        htmlEstrellas += "✩"; // estrella vacía
-      }
-  
-      return `<span style="color: gold; font-size: 1.2rem;">${htmlEstrellas}</span>`;
-    }
-  
     function cargarDocentes(query = '') {
       fetch('/buscar_docente?q=' + encodeURIComponent(query))
         .then(response => response.json())
@@ -156,32 +130,28 @@
               div.className = 'docente';
   
               const promedio = doc.promedio !== null ? parseFloat(doc.promedio) : 'Sin calificaciones';
-          const estrellasHTML = generarEstrellas(promedio);
-
-  
+              
               const enlace = document.createElement('a');
               enlace.href = `${window.location.origin}/docentes/${doc.id_docente}`;
-
-
-enlace.style.textDecoration = 'none'; // Opcional: quitar subrayado
-enlace.style.color = 'inherit';       // Opcional: heredar colores
-
-// Crea un contenedor dentro del enlace para que sea clickeable todo
-const contenido = document.createElement('div');
-contenido.innerHTML = `
-  <span style="color: black; font-weight: bold; font-size: 1.3rem;">
-    <em style="color: #2563eb;">Docente:</em> ${doc.nombre}
-  </span><br>
-  <em style="color: #2563eb;">Semestres:</em> ${doc.semestres}<br>
-  <em style="color: #2563eb;">Materias:</em> ${doc.materias}<br>
-  <em style="color: #2563eb;">Promedio de Calificación:</em> ${promedio}<br>
-  ${estrellasHTML}
-`;
-
-enlace.appendChild(contenido);
-div.appendChild(enlace);
-lista.appendChild(div);
-
+  
+              enlace.style.textDecoration = 'none'; // Opcional: quitar subrayado
+              enlace.style.color = 'inherit';       // Opcional: heredar colores
+  
+              // Crea un contenedor dentro del enlace para que sea clickeable todo
+              const contenido = document.createElement('div');
+              contenido.innerHTML = `
+                <span style="color: black; font-weight: bold; font-size: 1.3rem;">
+                  <em style="color: #2563eb;">Docente:</em> ${doc.nombre}
+                </span><br>
+                <em style="color: #2563eb;">Semestres:</em> ${doc.semestres}<br>
+                <em style="color: #2563eb;">Materias:</em> ${doc.materias}<br>
+                <em style="color: #2563eb;">Promedio de Calificación:</em> 
+                <strong>${promedio !== 'Sin calificaciones' ? promedio : 'Sin calificaciones'}</strong><br>
+              `;
+  
+              enlace.appendChild(contenido);
+              div.appendChild(enlace);
+              lista.appendChild(div);
             });
           }
         });
