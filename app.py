@@ -4,23 +4,20 @@ from flask import Flask, render_template, request, redirect, url_for
 import mysql.connector
 from datetime import datetime
 from flask import jsonify
-import os
-from dotenv import load_dotenv
 app = Flask(__name__)
 
 # ------------------ CONFIGURACIÓN DE LA BD ------------------
 
 
 
-load_dotenv()
 
 def conectar():
     return mysql.connector.connect(
-        host=os.getenv("nozomi.proxy.rlwy.net"),
-        user=os.getenv("root"),
-        password=os.getenv("icXPnbNWiAioFqLRyMlbJNYaJAvyqdyV"),
-        database=os.getenv("railway"),
-        port=int(os.getenv("28979"))
+        host="shortline.proxy.rlwy.net",
+        user="root",
+        password="LqQjAVIFKbBYdsBcYNRcvXWskkcdYpMl",
+        database="railway",
+        port=50162
     )
 
 
