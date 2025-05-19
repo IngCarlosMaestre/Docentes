@@ -56,7 +56,7 @@ def detalle_docente(id_docente):
 
         cursor.execute("""
             SELECT id_resena, resena, fecha, valor_calificacion
-            FROM Resenas
+            FROM resenas
             WHERE id_docente = %s
             ORDER BY fecha DESC
         """, (id_docente,))
