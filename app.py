@@ -37,9 +37,16 @@ def buscar_docente():
         cursor.execute("SELECT * FROM Docentes")
     
     docentes = cursor.fetchall()
-    conn.close()
 
+    # Agregar promedio a cada docente
+    for d in docentes:
+        cursor.execute("SELECT AVG(valor_calificacion) as promedio FROM Resenas WHERE id_docente = %s", (d['id_docente'],))
+        resultado = cursor.fetchone()
+        d['promedio'] = round(resultado['promedio'], 1) if resultado['promedio'] else None
+
+    conn.close()
     return jsonify(docentes)
+
 
 @app.route('/docentes/<int:id_docente>')
 def detalle_docente(id_docente):
