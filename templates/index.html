@@ -126,15 +126,15 @@
       let htmlEstrellas = "";
   
       for (let i = 0; i < estrellasLlenas; i++) {
-        htmlEstrellas += "★"; // estrella llena
+        htmlEstrellas += "★";
       }
   
       if (tieneMedia) {
-        htmlEstrellas += "☆"; // media estrella
+        htmlEstrellas += "☆";
       }
   
       for (let i = 0; i < estrellasVacias; i++) {
-        htmlEstrellas += "✩"; // estrella vacía
+        htmlEstrellas += "✩";
       }
   
       return `<span style="color: gold; font-size: 1.2rem;">${htmlEstrellas}</span>`;
@@ -145,53 +145,66 @@
         .then(response => response.json())
         .then(data => {
           const lista = document.getElementById('listaDocentes');
-          lista.innerHTML = ''; // Limpiar lista antes de actualizar
+          lista.innerHTML = '';
   
           if (data.length === 0) {
             lista.innerHTML = '<p>No se encontraron docentes.</p>';
-          } else {
-            data.forEach(doc => {
+            return;
+          }
+  
+          // Consultar el promedio de cada docente en paralelo
+          const promesas = data.map(doc =>
+            fetch(`/promedio_docente/${doc.id_docente}`)
+              .then(resp => resp.json())
+              .then(info => ({
+                ...doc,
+                promedio: info.promedio !== null ? parseFloat(info.promedio) : 'Sin calificaciones'
+              }))
+              .catch(() => ({
+                ...doc,
+                promedio: 'Sin calificaciones'
+              }))
+          );
+  
+          Promise.all(promesas).then(docentesConPromedio => {
+            docentesConPromedio.forEach(doc => {
               const div = document.createElement('div');
               div.className = 'docente';
   
-              // Obtener promedio del docente desde el backend
-              fetch(`/promedio_docente/${doc.id_docente}`)
-                .then(resp => resp.json())
-                .then(info => {
-                  const promedio = info.promedio !== null ? parseFloat(info.promedio) : 'Sin calificaciones';
-                  const estrellasHTML = generarEstrellas(promedio);
+              const estrellasHTML = generarEstrellas(doc.promedio);
   
-                  const enlace = document.createElement('a');
-                  enlace.href = `${window.location.origin}/docentes/${doc.id_docente}`;
-                  enlace.style.textDecoration = 'none';
-                  enlace.style.color = 'inherit';
+              const enlace = document.createElement('a');
+              enlace.href = `${window.location.origin}/docentes/${doc.id_docente}`;
+              enlace.style.textDecoration = 'none';
+              enlace.style.color = 'inherit';
   
-                  const contenido = document.createElement('div');
-                  contenido.innerHTML = `
-                    <span style="color: black; font-weight: bold; font-size: 1.3rem;">
-                      <em style="color: #2563eb;">Docente:</em> ${doc.nombre}
-                    </span><br>
-                    <em style="color: #2563eb;">Semestres:</em> ${doc.semestres}<br>
-                    <em style="color: #2563eb;">Materias:</em> ${doc.materias}<br>
-                    <em style="color: #2563eb;">Promedio de Calificación:</em> ${promedio}<br>
-                    ${estrellasHTML}
-                  `;
+              const contenido = document.createElement('div');
+              contenido.innerHTML = `
+                <span style="color: black; font-weight: bold; font-size: 1.3rem;">
+                  <em style="color: #2563eb;">Docente:</em> ${doc.nombre}
+                </span><br>
+                <em style="color: #2563eb;">Semestres:</em> ${doc.semestres}<br>
+                <em style="color: #2563eb;">Materias:</em> ${doc.materias}<br>
+                <em style="color: #2563eb;">Promedio de Calificación:</em> ${doc.promedio}<br>
+                ${estrellasHTML}
+              `;
   
-                  enlace.appendChild(contenido);
-                  div.appendChild(enlace);
-                  lista.appendChild(div);
-                });
+              enlace.appendChild(contenido);
+              div.appendChild(enlace);
+              lista.appendChild(div);
             });
-          }
+          });
+        })
+        .catch(error => {
+          console.error('Error al cargar docentes:', error);
+          document.getElementById('listaDocentes').innerHTML = '<p>Error al cargar los docentes.</p>';
         });
     }
   
-    // Mostrar todos los docentes al cargar la página
     window.addEventListener('DOMContentLoaded', () => {
       cargarDocentes();
     });
   
-    // Filtrar docentes según el texto ingresado
     document.getElementById('busqueda').addEventListener('input', function () {
       const query = this.value;
       cargarDocentes(query);

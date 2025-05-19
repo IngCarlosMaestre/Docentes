@@ -41,9 +41,20 @@ def buscar_docente():
 
     return jsonify(docentes)
 
+@app.route('/promedio_docente/<int:id_docente>')
+def promedio_docente(id_docente):
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT ROUND(AVG(valor_calificacion), 1) AS promedio
+        FROM Resenas
+        WHERE id_docente = %s
+    """, (id_docente,))
+    resultado = cursor.fetchone()
+    conn.close()
 
-
-
+    promedio = resultado[0] if resultado and resultado[0] is not None else None
+    return jsonify({'promedio': promedio})
 
 import traceback
 
