@@ -30,17 +30,26 @@ def buscar_docente():
     
     if query:
         cursor.execute("""
-            SELECT * FROM Docentes 
-            WHERE LOWER(nombre) LIKE %s OR LOWER(materias) LIKE %s
+            SELECT d.*, 
+                   COALESCE(ROUND(AVG(r.valor_calificacion), 1), 'Sin calificaciones') AS promedio
+            FROM Docentes d
+            LEFT JOIN resenas r ON d.id_docente = r.id_docente
+            WHERE LOWER(d.nombre) LIKE %s OR LOWER(d.materias) LIKE %s
+            GROUP BY d.id_docente
         """, ('%' + query + '%', '%' + query + '%'))
     else:
-        cursor.execute("SELECT * FROM Docentes")
+        cursor.execute("""
+            SELECT d.*, 
+                   COALESCE(ROUND(AVG(r.valor_calificacion), 1), 'Sin calificaciones') AS promedio
+            FROM Docentes d
+            LEFT JOIN resenas r ON d.id_docente = r.id_docente
+            GROUP BY d.id_docente
+        """)
     
     docentes = cursor.fetchall()
     conn.close()
 
     return jsonify(docentes)
-
 
 
 import traceback
