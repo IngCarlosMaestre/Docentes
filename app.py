@@ -31,19 +31,19 @@ def buscar_docente():
     if query:
         cursor.execute("""
             SELECT D.*, 
-                ROUND(AVG(R.valor_calificacion), 1) AS promedio
+                (SELECT ROUND(AVG(R.valor_calificacion), 1)
+                 FROM Resenas R
+                 WHERE R.id_docente = D.id_docente) AS promedio
             FROM Docentes D
-            LEFT JOIN Resenas R ON D.id_docente = R.id_docente
             WHERE LOWER(D.nombre) LIKE %s OR LOWER(D.materias) LIKE %s
-            GROUP BY D.id_docente
         """, ('%' + query + '%', '%' + query + '%'))
     else:
         cursor.execute("""
             SELECT D.*, 
-                ROUND(AVG(R.valor_calificacion), 1) AS promedio
+                (SELECT ROUND(AVG(R.valor_calificacion), 1)
+                 FROM Resenas R
+                 WHERE R.id_docente = D.id_docente) AS promedio
             FROM Docentes D
-            LEFT JOIN Resenas R ON D.id_docente = R.id_docente
-            GROUP BY D.id_docente
         """)
     
     docentes = cursor.fetchall()
