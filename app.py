@@ -24,46 +24,37 @@ def index():
 
 @app.route('/buscar_docente')
 def buscar_docente():
-    import traceback
-    try:
-        query = request.args.get('q', '').lower()
-        conn = conectar()
-        cursor = conn.cursor(dictionary=True)
+    query = request.args.get('q', '').lower()
+    conn = conectar()
+    cursor = conn.cursor(dictionary=True)
+    
+    if query:
+        cursor.execute("""
+            SELECT * FROM Docentes 
+            WHERE LOWER(nombre) LIKE %s OR LOWER(materias) LIKE %s
+        """, ('%' + query + '%', '%' + query + '%'))
+    else:
+        cursor.execute("SELECT * FROM Docentes")
+    
+    docentes = cursor.fetchall()
+    conn.close()
 
-        if query:
-            cursor.execute("""
-                SELECT * FROM Docentes 
-                WHERE LOWER(nombre) LIKE %s OR LOWER(materias) LIKE %s
-            """, ('%' + query + '%', '%' + query + '%'))
-        else:
-            cursor.execute("SELECT * FROM Docentes")
+    return jsonify(docentes)
 
-        docentes = cursor.fetchall()
+@app.route('/promedio_docente/<int:id_docente>')
+def promedio_docente(id_docente):
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT ROUND(AVG(valor_calificacion), 1) AS promedio
+        FROM Resenas
+        WHERE id_docente = %s
+    """, (id_docente,))
+    resultado = cursor.fetchone()
+    conn.close()
 
-        for doc in docentes:
-            cursor.execute("""
-                SELECT valor_calificacion
-                FROM Resenas
-                WHERE id_docente = %s
-            """, (doc['id_docente'],))
-            calificaciones = cursor.fetchall()
-
-            valores = []
-            for c in calificaciones:
-                try:
-                    valores.append(float(c['valor_calificacion']))
-                except (ValueError, TypeError):
-                    pass
-
-            doc['promedio'] = round(sum(valores) / len(valores), 1) if valores else None
-
-        conn.close()
-        return jsonify(docentes)
-
-    except Exception as e:
-        traceback.print_exc()
-        return jsonify({'error': 'Error del servidor'}), 500
-
+    promedio = resultado[0] if resultado and resultado[0] is not None else None
+    return jsonify({'promedio': promedio})
 
 import traceback
 
