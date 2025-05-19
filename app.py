@@ -143,7 +143,7 @@ def comentar_resena(id_resena):
         cursor = conn.cursor()
 
         # Validar que la reseña existe
-        cursor.execute("SELECT id_docente FROM Resenas WHERE id_resena = %s", (id_resena,))
+        cursor.execute("SELECT id_docente FROM resenas WHERE id_resena = %s", (id_resena,))
         resultado = cursor.fetchone()
         if not resultado:
             conn.close()
