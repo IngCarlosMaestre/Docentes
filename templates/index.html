@@ -164,7 +164,8 @@ if (promedio === null || isNaN(parseFloat(promedio))) {
               const estrellasHTML = generarEstrellas(promedio);
   
               const enlace = document.createElement('a');
-              enlace.href = `/docentes/${doc.id_docente}`;  // ✅ Coincide con Flask
+              enlace.href = `${window.location.origin}/docentes/${doc.id_docente}`;
+
 
 
 enlace.style.textDecoration = 'none'; // Opcional: quitar subrayado
