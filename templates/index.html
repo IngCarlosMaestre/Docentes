@@ -154,18 +154,11 @@
               const div = document.createElement('div');
               div.className = 'docente';
   
-              let promedio = doc.promedio;
-if (promedio === null || isNaN(parseFloat(promedio))) {
-  promedio = 'Sin calificaciones';
-} else {
-  promedio = parseFloat(promedio).toFixed(1);
-}
-
+              const promedio = doc.promedio !== null ? parseFloat(doc.promedio) : 'Sin calificaciones';
               const estrellasHTML = generarEstrellas(promedio);
   
               const enlace = document.createElement('a');
               enlace.href = `${window.location.origin}/docentes/${doc.id_docente}`;
-
 
 
 enlace.style.textDecoration = 'none'; // Opcional: quitar subrayado
