@@ -4,6 +4,9 @@ from flask import Flask, render_template, request, redirect, url_for
 import mysql.connector
 from datetime import datetime
 from flask import jsonify
+import os
+import mysql.connector
+from dotenv import load_dotenv
 app = Flask(__name__)
 
 # ------------------ CONFIGURACIÓN DE LA BD ------------------
@@ -11,14 +14,17 @@ app = Flask(__name__)
 
 
 
+load_dotenv()
+
 def conectar():
     return mysql.connector.connect(
-        host="shortline.proxy.rlwy.net",
-        user="root",
-        password="LqQjAVIFKbBYdsBcYNRcvXWskkcdYpMl",
-        database="railway",
-        port=50162
+        host=os.getenv("DB_HOST"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        database=os.getenv("DB_NAME"),
+        port=int(os.getenv("DB_PORT"))
     )
+
 
 
 # ------------------ RUTAS ------------------
@@ -198,5 +204,10 @@ def comentar_resena(id_resena):
 
 # ------------------ MAIN ------------------
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    try:
+        conn = conectar()
+        print("✅ Conexión exitosa a Railway MySQL")
+        conn.close()
+    except Exception as e:
+        print("❌ Error al conectar:", e)
